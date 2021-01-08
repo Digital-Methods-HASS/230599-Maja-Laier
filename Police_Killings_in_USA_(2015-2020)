@@ -1,1 +1,97 @@
+#First, I Install the neccesary packages, in order to be able to work the useful functions ----
+install.packages("tidyverse")
+install.packages("lubridate")
 
+#Then I activate said packages by the library-command.
+library(tidyverse)
+library(lubridate)
+
+#First I want to see the general dataset. I do that by importing it as a csv.file ----
+fatal_police_shootings <- read.csv("Final_Assignment/Dataset/Police_Killings.csv")
+
+#Next, I want to get a general overwiew of the "race" column I am working with. ----
+#This is done through the count function. This gives me a pretty good overall idea of the representation, but it is not very visual
+Police_Killings %>% 
+  count(race, sort = TRUE)
+
+#Now, I want to see this representation visualized. 
+#First, I create another data.frame with the races counted percentwise. 
+Police_Killings %>% 
+  count(race, sort = TRUE) %>% 
+  mutate(total_number = 5861) %>% 
+  mutate(percentate = n/total_number) -> Race_percent
+
+#Next, I want to visualize these percentages through a col_plot ----
+Race_percent %>% 
+  mutate(race = reorder(race,n)) %>% 
+  ggplot(aes(x=race, y=percentate))+
+  geom_col()+
+  coord_flip()+
+  theme_classic()+
+  theme(axis.title = element_text(size = 14, face = "bold"),
+        plot.title = element_text(size = 20, face = "bold", color = "black"),
+        axis.text = element_text(size = 14, color = "black"))+
+  xlab(NULL)+
+  labs(x="Race", 
+       y= "Percentage",
+       title = "Race percentage")
+
+#This clealy shows, how the majority representation in the period 2015-2020 is white, 2nd place being black
+
+#Next, I want to see if there is any particular areas which are more prone to police killings.----
+Police_Killings %>% 
+  count(state, sort = TRUE) %>% 
+  top_n(15) %>% 
+  mutate(state = reorder(state,n)) %>% 
+  ggplot(aes(x = state, y = n))+
+  geom_col()+
+  theme_classic()+
+  theme(axis.title = element_text(size = 14, face = "bold"),
+        plot.title = element_text(size = 20, face = "bold", color = "black"),
+        axis.text = element_text(size = 14, color = "black"))+
+  xlab(NULL)+
+  labs(x="States", 
+       y= "Number of Deaths",
+       title = "States with most police killings")+
+  coord_flip()
+#The last, and most complicated thing, I want to visualize is the race-dispersency of killings, over the entire timeframe of the dataset. ---- 
+#This wil help me notice general changes in number of each race represented, over the duration of 5 years.
+
+# First, I make a count pr. year, by creating a new column in my dataset 
+Police_Killings %>% 
+  mutate(date = as.Date(date)) %>% 
+  mutate(Year = year(date)) -> Police_Killings
+
+Next, I create a plot for the total amount of killings, regardless of race. 
+Police_Killings %>% 
+  count(Year) %>% 
+  ggplot(aes(x = Year, y = n))+
+  geom_line(lwd = 1.3)+
+  theme_classic()+
+  theme(axis.title = element_text(size = 14, face = "bold"),
+        plot.title = element_text(size = 20, face = "bold", color = "black"),
+        axis.text = element_text(size = 14, color = "black"))+
+  xlab(NULL)+
+  labs(x="Year", 
+       y= "Number of deaths",
+       title = "Total death count (2015-2020)")
+
+#Lastly, I can create a vine chart which represents each race´s number of killings pr. year, over the total time period 
+Police_Killings %>% 
+  count(Year, race) %>% 
+  ggplot(aes(x = Year, y = n, color = race))+
+  geom_line(lwd = 1.2)+
+  theme_classic()+
+  theme(axis.title = element_text(size = 14, face = "bold"),
+        plot.title = element_text(size = 20, face = "bold", color = "black"),
+        axis.text = element_text(size = 14, color = "black"),
+        legend.text = element_text(size = 13, color = "black"),
+        legend.title = element_text(size = 15, color = "Black"))+
+  xlab(NULL) +
+  labs(x = "Years",
+       y = "number of killings",
+       title = "Killings Dispersed on Race")
+
+#This graph shows that The goups have very different experiences throughout the 5-year period.
+#Blacks experience a steady rise in deaths from 2017-2019 followed by a steep drop from 2019-2020 
+#Whites experience the largest number by far, but the most steady decline in numbers
