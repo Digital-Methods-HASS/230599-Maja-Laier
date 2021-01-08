@@ -1,8 +1,8 @@
-#First, I Install the neccesary packages, in order to be able to work the useful functions ----
+# First, I Install the neccesary packages, in order to be able to work the useful functions ----
 install.packages("tidyverse")
 install.packages("lubridate")
 
-#Then I activate said packages by the library-command.
+# Then I activate said packages by the library-command. ----
 library(tidyverse)
 library(lubridate)
 
@@ -13,6 +13,7 @@ fatal_police_shootings <- read.csv("Final_Assignment/Dataset/Police_Killings.csv
 #This is done through the count function. This gives me a pretty good overall idea of the representation, but it is not very visual
 Police_Killings %>% 
   count(race, sort = TRUE)
+  
 
 #Now, I want to see this representation visualized. 
 #First, I create another data.frame with the races counted percentwise. 
@@ -38,6 +39,18 @@ Race_percent %>%
 
 #This clealy shows, how the majority representation in the period 2015-2020 is white, 2nd place being black
 
+
+
+
+
+
+
+
+
+
+
+#It shows that the groups Hispanic, Blacks and Unknown are way lower than the representation of whites. 
+
 #Next, I want to see if there is any particular areas which are more prone to police killings.----
 Police_Killings %>% 
   count(state, sort = TRUE) %>% 
@@ -62,7 +75,7 @@ Police_Killings %>%
   mutate(date = as.Date(date)) %>% 
   mutate(Year = year(date)) -> Police_Killings
 
-Next, I create a plot for the total amount of killings, regardless of race. 
+#Next, I create a plot for the total amount of killings, regardless of race. 
 Police_Killings %>% 
   count(Year) %>% 
   ggplot(aes(x = Year, y = n))+
@@ -77,6 +90,13 @@ Police_Killings %>%
        title = "Total death count (2015-2020)")
 
 #Lastly, I can create a vine chart which represents each race´s number of killings pr. year, over the total time period 
+# I first need to separate my "date" column by years to make the visualisation clearer 
+
+Police_Killings %>% 
+  mutate(date = as.Date(date)) %>% 
+  mutate(Year = year(date)) -> Police_Killings
+
+#Then, I plot the total killings pr. year, disbersed on race
 Police_Killings %>% 
   count(Year, race) %>% 
   ggplot(aes(x = Year, y = n, color = race))+
